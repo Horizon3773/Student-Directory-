@@ -1,190 +1,312 @@
+   
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Batch Directory</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
-        }
-        .accordion-content.expanded {
-            max-height: 4000px;
-            transition: max-height 1s ease-in-out;
-        }
-        .accordion-icon {
-            transition: transform 0.3s ease-in-out;
-        }
-        .accordion-button.active .accordion-icon {
-            transform: rotate(180deg);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Batch Directory</title>
+<!-- Tailwind CSS for styling -->
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- Google Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+body {
+font-family: 'Inter', sans-serif;
+background-color: #f8fafc;
+}
+.accordion-content {
+max-height: 0;
+overflow: hidden;
+transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
+}
+.accordion-content.expanded {
+max-height: 4000px; /* A large enough value to accommodate content /
+transition: max-height 1s ease-in-out;
+}
+.accordion-icon {
+transition: transform 0.3s ease-in-out;
+}
+.accordion-button.active .accordion-icon {
+transform: rotate(180deg);
+}
+/ Style for the clickable profile card /
+.profile-card {
+cursor: pointer;
+}
+/ Fade-in animation for modal */
+#profile-modal.hidden {
+opacity: 0;
+pointer-events: none;
+}
+#profile-modal {
+opacity: 1;
+pointer-events: auto;
+transition: opacity 0.3s ease;
+}
+</style>
 </head>
 <body class="bg-slate-50 text-slate-800">
-    <div class="container mx-auto px-4 py-8 md:py-12">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl md:text-5xl font-bold text-slate-900">Student Batch Directory</h1>
-            <p class="text-md md:text-lg text-slate-600 mt-2">Browse students by their graduation year.</p>
-        </header>
-        <main id="directory-container" class="max-w-4xl mx-auto space-y-4"></main>
-        <footer class="text-center mt-12 text-slate-500">
-            <p>&copy; 2025 Student Directory. All Rights Reserved.</p>
-        </footer>
+<div class="container mx-auto px-4 py-8 md:py-12">
+<header class="text-center mb-8">
+<h1 class="text-3xl md:text-5xl font-bold text-slate-900">Student Batch Directory</h1>
+</header>
+
+    <!-- Search Bar -->
+    <div class="max-w-2xl mx-auto mb-10 px-4">
+         <div class="relative">
+            <input type="text" id="search-input" placeholder="Search by name..." class="w-full pl-5 pr-12 py-3 text-lg text-slate-700 bg-white border border-slate-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200">
+            <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+        </div>
     </div>
-    <script>
-        const students = [
-            { name: 'Anurag Mishra', place: 'Bhayandar', batch: 2023, photoURL: 'https://i.vgy.me/v3xkEF.jpg' },
-            { name: 'Sahil Suryavanshi', place: 'Badlapur', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=SS' },
-            { name: 'Aditya Salve', place: 'Ambernath', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=AS' },
-            { name: 'Akib Umrani', place: 'Boisar', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=AU' },
-            { name: 'Amit Choudhary', place: 'Sion', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=AC' },
-            { name: 'Yuvraj Singh Ranawat', place: 'Kharghar', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=YSR' },
-            { name: 'Manas Katoskar', place: 'Asangaon', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=MK' },
-            { name: 'Krishna Pawar', place: 'Kurla', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=KP' },
-            { name: 'Migdad Farooqi', place: 'Mumbra', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=MF' },
-            { name: 'Aman Layarawala', place: 'Mumbra', batch: 2022, photoURL: 'https://placehold.co/300x300/ec4899/white?text=AL' },
-            { name: 'Divyansh Singh', place: 'Seawoods', batch: 2022, photoURL: 'https://placehold.co/300x300/ec4899/white?text=DS' },
-            { name: 'Piyush Kumar Singh', place: 'Vasai', batch: 2022, photoURL: 'https://placehold.co/300x300/ec4899/white?text=PKS' },
-            { name: 'Bhargav Rasal', place: 'Kharghar', batch: 2022, photoURL: 'https://placehold.co/300x300/ec4899/white?text=BR' },
-            { name: 'Rahul Rajpurohit', place: 'Bhiwandi', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RR' },
-            { name: 'Rishabh Singh', place: 'Lalbaug', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RS' },
-            { name: 'Govardhan Badhane', place: 'CBD Belapur', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GB' },
-            { name: 'Prateek Khairnar', place: 'Wasim', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=PK' },
-            { name: 'Sabir Shaikh', place: 'Mumbra', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=SS' },
-            { name: 'Gaurav Yadav', place: 'Airoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GY' },
-            { name: 'Shubham Nandecha', place: 'Khopoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=SN' },
-            { name: 'Badri Mallah', place: 'Nalasopara', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=BM' },
-            { name: 'Pulkit Kedavat', place: 'Powai', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=PK' },
-            { name: 'Ravindra Patel', place: 'Nalasopara', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RP' },
-            { name: 'Atharva Dhuri', place: 'Bandra', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=AD' },
-            { name: 'Namah Gupta', place: 'Ghatkopar', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=NG' },
-            { name: 'Mandar Mohidekar', place: 'Dombivali', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=MM' },
-            { name: 'Ishan Bhange', place: 'Panvel', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=IB' },
-            { name: 'Dr. Rahul Kendapadi', place: 'Sion', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=RK' },
-            { name: 'Dr. Akshat Warrier', place: 'Andheri', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AW' },
-            { name: 'Dr. Winston Pereira', place: 'Andheri', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=WP' },
-            { name: 'Dr. Ali Waris Sayyed', place: 'Mumbra', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AWS' },
-            { name: 'Dr. Vasant Thakur', place: 'Malad', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=VT' },
-            { name: 'Dr. Shrivats Tidke', place: 'Panvel', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=ST' },
-            { name: 'Dr. Aakash Dangodra', place: 'Dahisar', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AD' },
-            { name: 'Dr. Shubham Pathak', place: 'Panvel', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=SP' },
-            { name: 'Dr. Subhjyoti Jana', place: 'Bhayander', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=SJ' },
-            { name: 'Dr. Shashank Patel', place: 'Kandivali', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=SP' },
-            { name: 'Dr. Nishant Bhangare', place: 'Mulund', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=NB' },
-            { name: 'Dr. Tushar Rawate', place: 'Bhiwandi', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=TR' },
-            { name: 'Dr. Aryan Chawiwala', place: 'Vasai', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AC' },
-            { name: 'Dr. Yash Kulkarni', place: 'Kalyan', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=YK' },
-            { name: 'Dr. Pravin Choudhary', place: 'Bhayander', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=PC' },
-            { name: 'Dr. Hrushikesh Auti', place: 'Vasai', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=HA' },
-            { name: 'Dr. Alok Singh', place: 'Palghar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AS' },
-            { name: 'Dr. Abhishek Mishra', place: 'Dahisar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AM' },
-            { name: 'Dr. Ashwin Shukla', place: 'Andheri', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AS' },
-            { name: 'Dr. Suraj Singh', place: 'Nalasopara', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=SS' },
-            { name: 'Dr. Vishnu Nair', place: 'Virar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=VN' },
-            { name: 'Dr. Shivdutta Kachare', place: 'Koparkhairane', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=SK' },
-            { name: 'Dr. Rajeshwar Singh', place: 'Bhandup', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=RS' },
-            { name: 'Dr. Aditya Nambiar', place: 'Nerul', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AN' },
-            { name: 'Dr. Pratik Kumar Singh', place: 'Vasai', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=PKS' },
-            { name: 'Dr. Saad Khot', place: 'Kharghar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=SK' },
-            { name: 'Dr. Rishabh Singh', place: 'Dombivali', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=RS' },
-            { name: 'Dr. Aman Pathak', place: 'Elphistone', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=AP' },
-            { name: 'Dr. Sachin Pandey', place: 'Kandivali', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=SP' },
-            { name: 'Dr. Bhushan Bharhate', place: 'Vashi', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=BB' },
-            { name: 'Dr. Kshitij Yadav', place: 'Kandivali', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=KY' },
-            { name: 'Dr. Kabir Yadav', place: 'Kurla', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=KY' },
-            { name: 'Dr. Faiz Shaikh', place: 'Mumbra', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=FS' },
-            { name: 'Dr. Faraz Shaikh', place: 'Ambernath', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=FS' },
-            { name: 'Dr. Tarique Khan', place: 'Kurla', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=TK' },
-            { name: 'Dr. Siddesh Shinde', place: 'Raigad', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=SS' },
-            { name: 'Dr. Azeem Shaikh', place: 'Maoo Uttar Pradesh', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=AS' },
-            { name: 'Dr. Anup Maurya', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=AM' },
-            { name: 'Dr. Karan Sankhala', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=KS' },
-            { name: 'Dr. Lalit Kumavat', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=LK' },
-            { name: 'Dr. Ajay Kalyankar', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=AK' },
-            { name: 'Dr. Manish Parkhe', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=MP' },
-            { name: 'Dr. Shubham Prasad', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=SP' },
-            { name: 'Dr. Aleem Ansari', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=AA' },
-            { name: 'Dr. Abu Sajid Khan', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=ASK' },
-            { name: 'Dr. Vikas Mishra', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=VM' },
-            { name: 'Dr. Tarun Mishra', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=TM' },
-            { name: 'Dr. Hemraj Patel', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=HP' },
-            { name: 'Dr. Ankit Yadav', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=AY' },
-            { name: 'Dr. Chakradhari Tripathi', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=CT' },
-            { name: 'Dr. Pratik Singh', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=PS' },
-            { name: 'Dr. Pratik Shinde', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=PS' },
-            { name: 'Dr. Gaurav Mahale', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=GM' },
-            { name: 'Dr. Piyush Ghind', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=PG' },
-            { name: 'Dr. Rohan Birhade', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=RB' },
-            { name: 'Dr. Rahul Singh', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=RS' },
-            { name: 'Dr. Amrendra Singh', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=AS' },
-            { name: 'Dr. Shubham Singh', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=SS' },
-            { name: 'Dr. Chandresh Jaiswal', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=CJ' },
-            { name: 'Dr. Umair Khan', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=UK' },
-            { name: 'Dr. Niraj Zawar', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=NZ' },
-            { name: 'Dr. Srinath Amudan', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=SA' },
-            { name: 'Dr. Hrishikesh Kelkar', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=HK' },
-        ];
-        document.addEventListener('DOMContentLoaded', () => {
-            const directoryContainer = document.getElementById('directory-container');
-            if (!directoryContainer) return;
-            const studentsByBatch = students.reduce((acc, student) => {
+
+    <main id="directory-container" class="max-w-4xl mx-auto space-y-4"></main>
+
+    <footer class="text-center mt-12 text-slate-500">
+        <p>&copy; 2025 Student Directory. All Rights Reserved.</p>
+    </footer>
+</div>
+
+<!-- Profile Modal -->
+<div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 hidden">
+    <div class="relative bg-white rounded-lg shadow-xl max-w-sm w-full text-center overflow-hidden">
+        <!-- Changed object-cover to object-contain -->
+        <img id="modal-image" src="" alt="Full-size student photo" class="w-full h-auto max-h-[70vh] object-contain bg-slate-100">
+        <div class="p-6">
+            <h3 id="modal-name" class="text-3xl font-bold text-slate-900"></h3>
+            <p id="modal-place" class="text-lg text-slate-600 mt-2"></p>
+        </div>
+        <button id="close-modal" class="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+    </div>
+</div>
+
+<script>
+    const students = [
+        // Batch 2023
+        { name: 'Anurag Mishra', place: 'Bhayandar', batch: 2023, photoURL: 'https://i.vgy.me/v3xkEF.jpg' },
+        { name: 'Sahil Suryavanshi', place: 'Badlapur', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=SS' },
+        { name: 'Aditya Salve', place: 'Ambernath', batch: 2023, photoURL: 'https://i.postimg.cc/RCXT4jRR/image.png' },
+        { name: 'Akib Umrani', place: 'Boisar', batch: 2023, photoURL: 'https://i.postimg.cc/wjt2W0Df/image.png' },
+        { name: 'Amit Choudhary', place: 'Sion', batch: 2023, photoURL: 'https://i.postimg.cc/15v77820/image.png' },
+        { name: 'Yuvraj Singh Ranawat', place: 'Kharghar', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=YSR' },
+        { name: 'Manas Katoskar', place: 'Asangaon', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=MK' },
+        { name: 'Krishna Pawar', place: 'Kurla', batch: 2023, photoURL: 'https://i.postimg.cc/cL5jCvcy/image.png' },
+        { name: 'Migdad Farooqi', place: 'Mumbra', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=MF' },
+        // Batch 2022
+        { name: 'Aman Layarawala', place: 'Mumbra', batch: 2022, photoURL: 'https://i.postimg.cc/k4kqbjNz/image.png' },
+        { name: 'Divyansh Singh', place: 'Seawoods', batch: 2022, photoURL: 'https://i.postimg.cc/0NYQP1pb/image.png' },
+        { name: 'Piyush Kumar Singh', place: 'Vasai', batch: 2022, photoURL: 'https://i.postimg.cc/HWRCZPyv/image.png' },
+        { name: 'Bhargav Rasal', place: 'Kharghar', batch: 2022, photoURL: 'https://i.postimg.cc/7ZVHWnD5/image.png' },
+        // Batch 2021
+        { name: 'Rahul Rajpurohit', place: 'Bhiwandi', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RR' },
+        { name: 'Rishabh Singh', place: 'Lalbaug', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RS' },
+        { name: 'Govardhan Bhadane', place: 'CBD Belapur', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GB' },
+        { name: 'Prateek Khairnar', place: 'Wasim', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=PK' },
+        { name: 'Sabir Shaikh', place: 'Mumbra', batch: 2021, photoURL: 'https://i.postimg.cc/6pLLqqxX/image.png' },
+        { name: 'Gaurav Yadav', place: 'Airoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GY' },
+        { name: 'Shubham Nandecha', place: 'Khopoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=SN' },
+        { name: 'Badri Mallah', place: 'Nalasopara', batch: 2021, photoURL: 'https://i.postimg.cc/R0SFSbX5/image.png' },
+        { name: 'Pulkit Kedavat', place: 'Powai', batch: 2021, photoURL: 'https://i.postimg.cc/05TpCD8N/image.png' },
+        { name: 'Ravindra Patel', place: 'Nalasopara', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RP' },
+        { name: 'Atharva Dhuri', place: 'Bandra', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=AD' },
+        { name: 'Namah Gupta', place: 'Ghatkopar', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=NG' },
+        { name: 'Mandar Mohidekar', place: 'Dombivali', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=MM' },
+        { name: 'Ishan Bhange', place: 'Panvel', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=IB' },
+        // Batch 2020
+        { name: 'Dr. Rahul Kendapadi', place: 'Sion', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=RK' },
+        { name: 'Dr. Akshat Warrier', place: 'Andheri', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AW' },
+        { name: 'Dr. Winston Pereira', place: 'Andheri', batch: 2020, photoURL: 'https://i.postimg.cc/pdCmKtyg/image.png' },
+        { name: 'Dr. Ali Waris Sayyed', place: 'Mumbra', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AWS' },
+        { name: 'Dr. Vasant Thakur', place: 'Malad', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=VT' },
+        { name: 'Dr. Shrivats Tidke', place: 'Panvel', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=ST' },
+        { name: 'Dr. Aakash Dangodra', place: 'Dahisar', batch: 2020, photoURL: 'https://i.postimg.cc/nzdQftJG/image.png' },
+        { name: 'Dr. Shubham Pathak', place: 'Panvel', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=SP' },
+        { name: 'Dr. Subhjyoti Jana', place: 'Bhayander', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=SJ' },
+        { name: 'Dr. Shashank Patel', place: 'Kandivali', batch: 2020, photoURL: 'https://i.postimg.cc/v8q5p5Yq/image.png' },
+        { name: 'Dr. Nishant Bhangare', place: 'Mulund', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=NB' },
+        { name: 'Dr. Tushar Rawate', place: 'Bhiwandi', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=TR' },
+        { name: 'Dr. Aryan Chawiwala', place: 'Vasai', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AC' },
+        { name: 'Dr. Yash Kulkarni', place: 'Kalyan', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=YK' },
+        // Batch 2019
+        { name: 'Dr. Pravin Choudhary', place: 'Bhayander', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=PC' },
+        { name: 'Dr. Hrushikesh Auti', place: 'Vasai', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=HA' },
+        { name: 'Dr. Alok Singh', place: 'Palghar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AS' },
+        { name: 'Dr. Abhishek Mishra', place: 'Dahisar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AM' },
+        { name: 'Dr. Ashwin Shukla', place: 'Andheri', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AS' },
+        { name: 'Dr. Suraj Singh', place: 'Nalasopara', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=SS' },
+        { name: 'Dr. Vishnu Nair', place: 'Virar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=VN' },
+        { name: 'Dr. Shivdutta Kachare', place: 'Koparkhairane', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=SK' },
+        { name: 'Dr. Rajeshwar Singh', place: 'Bhandup', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=RS' },
+        { name: 'Dr. Aditya Nambiar', place: 'Nerul', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=AN' },
+        { name: 'Dr. Pratik Kumar Singh', place: 'Vasai', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=PKS' },
+        { name: 'Dr. Saad Khot', place: 'Kharghar', batch: 2019, photoURL: 'https://placehold.co/300x300/3b82f6/white?text=SK' },
+        // Batch 2018
+        { name: 'Dr. Rishabh Singh', place: 'Dombivali', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=RS' },
+        { name: 'Dr. Aman Pathak', place: 'Elphistone', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=AP' },
+        { name: 'Dr. Sachin Pandey', place: 'Kandivali', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=SP' },
+        { name: 'Dr. Bhushan Bharhate', place: 'Vashi', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=BB' },
+        { name: 'Dr. Kshitij Yadav', place: 'Kandivali', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=KY' },
+        { name: 'Dr. Kabir Yadav', place: 'Kurla', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=KY' },
+        { name: 'Dr. Faiz Shaikh', place: 'Mumbra', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=FS' },
+        { name: 'Dr. Faraz Shaikh', place: 'Ambernath', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=FS' },
+        { name: 'Dr. Tarique Khan', place: 'Kurla', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=TK' },
+        { name: 'Dr. Siddesh Shinde', place: 'Raigad', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=SS' },
+        { name: 'Dr. Azeem Shaikh', place: 'Maoo Uttar Pradesh', batch: 2018, photoURL: 'https://placehold.co/300x300/ef4444/white?text=AS' },
+        // Batch 2017
+        { name: 'Dr. Anup Maurya', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=AM' },
+        { name: 'Dr. Karan Sankhala', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=KS' },
+        { name: 'Dr. Lalit Kumavat', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=LK' },
+        { name: 'Dr. Ajay Kalyankar', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=AK' },
+        { name: 'Dr. Manish Parkhe', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=MP' },
+        { name: 'Dr. Shubham Prasad', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=SP' },
+        { name: 'Dr. Aleem Ansari', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=AA' },
+        { name: 'Dr. Abu Sajid Khan', place: 'Place not specified', batch: 2017, photoURL: 'https://placehold.co/300x300/8b5cf6/white?text=ASK' },
+        // Batch 2016
+        { name: 'Dr. Vikas Mishra', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=VM' },
+        { name: 'Dr. Tarun Mishra', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=TM' },
+        { name: 'Dr. Hemraj Patel', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=HP' },
+        { name: 'Dr. Ankit Yadav', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=AY' },
+        { name: 'Dr. Chakradhari Tripathi', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=CT' },
+        { name: 'Dr. Pratik Singh', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=PS' },
+        { name: 'Dr. Pratik Shinde', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=PS' },
+        { name: 'Dr. Gaurav Mahale', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=GM' },
+        { name: 'Dr. Piyush Ghind', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=PG' },
+        { name: 'Dr. Rohan Birhade', place: 'Place not specified', batch: 2016, photoURL: 'https://placehold.co/300x300/64748b/white?text=RB' },
+        // Batch 2015
+        { name: 'Dr. Rahul Singh', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=RS' },
+        { name: 'Dr. Amrendra Singh', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=AS' },
+        { name: 'Dr. Shubham Singh', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=SS' },
+        { name: 'Dr. Chandresh Jaiswal', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=CJ' },
+        { name: 'Dr. Umair Khan', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=UK' },
+        { name: 'Dr. Niraj Zawar', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=NZ' },
+        { name: 'Dr. Srinath Amudan', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=SA' },
+        { name: 'Dr. Hrishikesh Kelkar', place: 'Place not specified', batch: 2015, photoURL: 'https://placehold.co/300x300/78716c/white?text=HK' },
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const directoryContainer = document.getElementById('directory-container');
+        const searchInput = document.getElementById('search-input');
+        const profileModal = document.getElementById('profile-modal');
+        const modalImage = document.getElementById('modal-image');
+        const modalName = document.getElementById('modal-name');
+        const modalPlace = document.getElementById('modal-place');
+        const closeModal = document.getElementById('close-modal');
+
+        const renderDirectory = (searchTerm = '') => {
+            directoryContainer.innerHTML = '';
+            const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+            const filteredStudents = students.filter(student =>
+                student.name.toLowerCase().includes(normalizedSearchTerm)
+            );
+
+            if (filteredStudents.length === 0) {
+                directoryContainer.innerHTML = `<p class="text-center text-slate-500 text-lg">No students found.</p>`;
+                return;
+            }
+
+            const studentsByBatch = filteredStudents.reduce((acc, student) => {
                 if (!acc[student.batch]) {
                     acc[student.batch] = [];
                 }
                 acc[student.batch].push(student);
                 return acc;
             }, {});
+
             const sortedBatches = Object.keys(studentsByBatch).sort((a, b) => b - a);
+            
+            let htmlToRender = '';
             sortedBatches.forEach(batch => {
                 const studentsInBatch = studentsByBatch[batch];
                 const studentCardsHTML = studentsInBatch.map(student => `
-                    <div class="profile-card bg-white rounded-lg shadow-md overflow-hidden text-center transform hover:-translate-y-1 transition-transform duration-300">
-                        <img src="${student.photoURL}" alt="Photo of ${student.name}" class="w-full h-40 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/300x300/EFEFEF/333333?text=Image+Not+Found';">
-                        <div class="p-4">
+                    <div class="profile-card bg-white rounded-lg shadow-md overflow-hidden text-center transform hover:-translate-y-1 transition-transform duration-300" 
+                        data-name="${student.name}" 
+                        data-place="${student.place}" 
+                        data-photo="${student.photoURL}">
+                        <!-- Image container with background color -->
+                        <div class="w-full h-40 bg-slate-100 flex items-center justify-center pointer-events-none">
+                            <!-- Changed object-cover to object-contain -->
+                            <img src="${student.photoURL}" alt="Photo of ${student.name}" class="max-w-full max-h-full object-contain">
+                        </div>
+                        <div class="p-4 pointer-events-none">
                             <h3 class="font-semibold text-slate-800">${student.name}</h3>
                             <p class="text-sm text-slate-500 mt-1">${student.place}</p>
                         </div>
                     </div>
                 `).join('');
-                const batchAccordionHTML = `
+
+                const isActive = normalizedSearchTerm.length > 0;
+
+                htmlToRender += `
                     <div class="batch-accordion rounded-lg overflow-hidden shadow-sm border border-slate-200 bg-white">
-                        <button class="accordion-button w-full flex justify-between items-center p-4 text-left hover:bg-slate-50 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50">
+                        <button class="accordion-button w-full flex justify-between items-center p-4 text-left hover:bg-slate-50 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 ${isActive ? 'active' : ''}">
                             <h2 class="text-xl font-semibold text-slate-900">Batch of ${batch}</h2>
                             <svg class="accordion-icon w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
-                        <div class="accordion-content bg-slate-50">
+                        <div class="accordion-content bg-slate-50 ${isActive ? 'expanded' : ''}">
                             <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                 ${studentCardsHTML}
                             </div>
                         </div>
-                    </div>
-                `;
-                directoryContainer.innerHTML += batchAccordionHTML;
+                    </div>`;
             });
+            
+            directoryContainer.innerHTML = htmlToRender;
+            attachAccordionListeners();
+        };
+
+        const attachAccordionListeners = () => {
             directoryContainer.querySelectorAll('.accordion-button').forEach(button => {
                 button.addEventListener('click', () => {
                     const accordionContent = button.nextElementSibling;
                     button.classList.toggle('active');
-                    if (accordionContent.classList.contains('expanded')) {
-                        accordionContent.classList.remove('expanded');
-                    } else {
-                        accordionContent.classList.add('expanded');
-                    }
+                    accordionContent.classList.toggle('expanded');
                 });
             });
+        };
+        
+        searchInput.addEventListener('input', (event) => renderDirectory(event.target.value));
+
+        // --- Modal Logic ---
+        const showModal = (name, place, photoURL) => {
+            modalName.textContent = name;
+            modalPlace.textContent = place;
+            modalImage.src = photoURL;
+            profileModal.classList.remove('hidden');
+        };
+
+        const hideModal = () => {
+            profileModal.classList.add('hidden');
+        };
+
+        // Event delegation for opening the modal
+        directoryContainer.addEventListener('click', (event) => {
+            const card = event.target.closest('.profile-card');
+            if (card) {
+                const { name, place, photo } = card.dataset;
+                showModal(name, place, photo);
+            }
         });
-    </script>
+
+        // Listeners for closing the modal
+        closeModal.addEventListener('click', hideModal);
+        profileModal.addEventListener('click', (event) => {
+            if (event.target === profileModal) {
+                hideModal();
+            }
+        });
+
+        // Initial render
+        renderDirectory();
+    });
+</script>
+
 </body>
 </html>
