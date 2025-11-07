@@ -1,14 +1,10 @@
-   
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Batch Directory</title>
-    <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -54,7 +50,6 @@
             <h1 class="text-3xl md:text-5xl font-bold text-slate-900">Student Batch Directory</h1>
         </header>
 
-        <!-- Search Bar -->
         <div class="max-w-2xl mx-auto mb-10 px-4">
              <div class="relative">
                 <input type="text" id="search-input" placeholder="Search by name..." class="w-full pl-5 pr-12 py-3 text-lg text-slate-700 bg-white border border-slate-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200">
@@ -71,10 +66,8 @@
         </footer>
     </div>
 
-    <!-- Profile Modal -->
     <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 hidden">
         <div class="relative bg-white rounded-lg shadow-xl max-w-sm w-full text-center overflow-hidden">
-            <!-- Changed object-cover to object-contain -->
             <img id="modal-image" src="" alt="Full-size student photo" class="w-full h-auto max-h-[70vh] object-contain bg-slate-100">
             <div class="p-6">
                 <h3 id="modal-name" class="text-3xl font-bold text-slate-900"></h3>
@@ -92,14 +85,14 @@
         const students = [
             // Batch 2023
             { name: 'Anurag Mishra', place: 'Bhayandar', batch: 2023, photoURL: 'https://i.vgy.me/v3xkEF.jpg' },
-            { name: 'Sahil Suryavanshi', place: 'Badlapur', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=SS' },
+            { name: 'Sahil Suryavanshi', place: 'Badlapur', batch: 2023, photoURL: 'https://i.postimg.cc/pXYLgB4S/IMG-20251107-WA0000.jpg' },
             { name: 'Aditya Salve', place: 'Ambernath', batch: 2023, photoURL: 'https://i.postimg.cc/RCXT4jRR/image.png' },
             { name: 'Akib Umrani', place: 'Boisar', batch: 2023, photoURL: 'https://i.postimg.cc/wjt2W0Df/image.png' },
             { name: 'Amit Choudhary', place: 'Sion', batch: 2023, photoURL: 'https://i.postimg.cc/15v77820/image.png' },
-            { name: 'Yuvraj Singh Ranawat', place: 'Kharghar', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=YSR' },
-            { name: 'Manas Katoskar', place: 'Asangaon', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=MK' },
+            { name: 'Yuvraj Singh Ranawat', place: 'Kharghar', batch: 2023, photoURL: 'https://i.postimg.cc/jdZ4RyJs/IMG-20251107-WA0004.jpg' },
+            { name: 'Manas Kataskar', place: 'Asangaon', batch: 2023, photoURL: 'https://i.postimg.cc/gjb6K2XT/IMG-20251107-WA0002.jpg' },
             { name: 'Krishna Pawar', place: 'Kurla', batch: 2023, photoURL: 'https://i.postimg.cc/cL5jCvcy/image.png' },
-            { name: 'Migdad Farooqi', place: 'Mumbra', batch: 2023, photoURL: 'https://placehold.co/300x300/6366f1/white?text=MF' },
+            { name: 'Migdad Farooqi', place: 'Mumbra', batch: 2023, photoURL: 'https://i.postimg.cc/WpZypY2g/IMG-20251107-WA0003.jpg' },
             // Batch 2022
             { name: 'Aman Layarawala', place: 'Mumbra', batch: 2022, photoURL: 'https://i.postimg.cc/k4kqbjNz/image.png' },
             { name: 'Divyansh Singh', place: 'Seawoods', batch: 2022, photoURL: 'https://i.postimg.cc/0NYQP1pb/image.png' },
@@ -230,10 +223,8 @@
                             data-name="${student.name}" 
                             data-place="${student.place}" 
                             data-photo="${student.photoURL}">
-                            <!-- Image container with background color -->
                             <div class="w-full h-40 bg-slate-100 flex items-center justify-center pointer-events-none">
-                                <!-- Changed object-cover to object-contain -->
-                                <img src="${student.photoURL}" alt="Photo of ${student.name}" class="max-w-full max-h-full object-contain">
+                                <img src="${student.photoURL}" alt="Photo of ${student.name}" class="max-w-full max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/300x300/EFEFEF/333333?text=Image+Not+Found';">
                             </div>
                             <div class="p-4 pointer-events-none">
                                 <h3 class="font-semibold text-slate-800">${student.name}</h3>
