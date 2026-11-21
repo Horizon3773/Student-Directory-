@@ -4,85 +4,416 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Batch Directory</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.56);
+            --glass-bg-hover: rgba(255, 255, 255, 0.78);
+            --glass-bg-strong: rgba(255, 255, 255, 0.72);
+            --glass-border: rgba(255, 255, 255, 0.82);
+            --glass-hairline: rgba(15, 23, 42, 0.06);
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', sans-serif;
+            background-color: #eff1f5;
+            -webkit-font-smoothing: antialiased;
         }
-        .accordion-content {
-            max-height: 0;
+
+        /* Pale pearlescent ambient canvas so frosted glass surfaces show subtle depth */
+        .ambient-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: -1;
             overflow: hidden;
-            transition: max-height 0.5s cubic-bezier(0, 1, 0, 1);
-        }
-        .accordion-content.expanded {
-            max-height: 4000px; /* A large enough value to accommodate content */
-            transition: max-height 1s ease-in-out;
-        }
-        .accordion-icon {
-            transition: transform 0.3s ease-in-out;
-        }
-        .accordion-button.active .accordion-icon {
-            transform: rotate(180deg);
-        }
-        /* Style for the clickable profile card */
-        .profile-card {
-            cursor: pointer;
-        }
-        /* Fade-in animation for modal */
-        #profile-modal.hidden {
-            opacity: 0;
             pointer-events: none;
+            background:
+                radial-gradient(circle at 14% 12%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 48%),
+                radial-gradient(circle at 86% 18%, rgba(226, 232, 240, 0.75) 0%, rgba(226, 232, 240, 0) 45%),
+                radial-gradient(circle at 52% 84%, rgba(228, 230, 238, 0.65) 0%, rgba(228, 230, 238, 0) 52%),
+                linear-gradient(180deg, #f5f6f9 0%, #eceef3 55%, #f2f3f7 100%);
         }
+
+        .ambient-orb {
+            position: absolute;
+            border-radius: 9999px;
+            filter: blur(80px);
+            opacity: 0.55;
+        }
+
+        /* Apple-style frosted glass materials */
+        .glass-dock {
+            background: rgba(255, 255, 255, 0.64);
+            backdrop-filter: blur(28px) saturate(185%);
+            -webkit-backdrop-filter: blur(28px) saturate(185%);
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            box-shadow:
+                0 1px 2px rgba(15, 23, 42, 0.04),
+                0 12px 32px -12px rgba(15, 23, 42, 0.09),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(22px) saturate(170%);
+            -webkit-backdrop-filter: blur(22px) saturate(170%);
+            border: 1px solid var(--glass-border);
+            box-shadow:
+                0 1px 2px var(--glass-hairline),
+                0 8px 24px -10px rgba(15, 23, 42, 0.07),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+            transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        background-color 0.22s ease,
+                        box-shadow 0.28s cubic-bezier(0.2, 0.8, 0.2, 1),
+                        border-color 0.22s ease;
+        }
+
+        .glass-card:hover {
+            background: var(--glass-bg-hover);
+            border-color: rgba(255, 255, 255, 0.98);
+            transform: translateY(-2px);
+            box-shadow:
+                0 2px 6px rgba(15, 23, 42, 0.05),
+                0 18px 36px -14px rgba(15, 23, 42, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+        }
+
+        .glass-list-shell {
+            background: rgba(255, 255, 255, 0.58);
+            backdrop-filter: blur(24px) saturate(175%);
+            -webkit-backdrop-filter: blur(24px) saturate(175%);
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            box-shadow:
+                0 1px 2px rgba(15, 23, 42, 0.04),
+                0 10px 28px -12px rgba(15, 23, 42, 0.07),
+                inset 0 1px 0 rgba(255, 255, 255, 0.92);
+        }
+
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.52);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            box-shadow:
+                0 1px 2px rgba(15, 23, 42, 0.03),
+                inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        }
+
+        .glass-pill:hover {
+            background: rgba(255, 255, 255, 0.78);
+        }
+
+        .glass-pill-active {
+            background: rgba(24, 24, 27, 0.86);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(24, 24, 27, 0.9);
+            box-shadow:
+                0 4px 12px -4px rgba(15, 23, 42, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        }
+
+        .glass-input {
+            background: rgba(255, 255, 255, 0.52);
+            border: 1px solid rgba(15, 23, 42, 0.07);
+            box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03), 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        .glass-input:focus {
+            background: rgba(255, 255, 255, 0.88);
+            border-color: rgba(15, 23, 42, 0.18);
+            box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.05), inset 0 1px 2px rgba(15, 23, 42, 0.02);
+        }
+
+        .glass-modal-sheet {
+            background: rgba(255, 255, 255, 0.78);
+            backdrop-filter: blur(36px) saturate(190%);
+            -webkit-backdrop-filter: blur(36px) saturate(190%);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            box-shadow:
+                0 24px 64px -16px rgba(15, 23, 42, 0.28),
+                inset 0 1px 0 rgba(255, 255, 255, 0.95);
+        }
+
+        .glass-control {
+            background: rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            box-shadow: 0 4px 14px -4px rgba(15, 23, 42, 0.16);
+        }
+
+        .glass-control:hover {
+            background: rgba(255, 255, 255, 0.94);
+        }
+
+        /* Hide horizontal scrollbars on mobile batch pill strip while keeping scrollability */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Smooth collapsible batch sections using CSS Grid */
+        .section-collapse {
+            display: grid;
+            grid-template-rows: 1fr;
+            transition: grid-template-rows 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), opacity 0.25s ease;
+            opacity: 1;
+        }
+        .section-collapse.is-collapsed {
+            grid-template-rows: 0fr;
+            opacity: 0;
+        }
+        .section-collapse-inner {
+            overflow: hidden;
+        }
+
+        /* Smooth chevron rotation */
+        .collapse-chevron {
+            transition: transform 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .is-collapsed-btn .collapse-chevron {
+            transform: rotate(-90deg);
+        }
+
+        /* Lightbox modal transitions */
         #profile-modal {
             opacity: 1;
             pointer-events: auto;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.24s ease;
+        }
+        #profile-modal.modal-closed {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #profile-modal .modal-panel {
+            transform: scale(1) translateY(0);
+            transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        #profile-modal.modal-closed .modal-panel {
+            transform: scale(0.95) translateY(12px);
+        }
+
+        /* Subtle card entrance animation */
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .animate-fade-up {
+            animation: fadeUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
-    <div class="container mx-auto px-4 py-8 md:py-12">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl md:text-5xl font-bold text-slate-900">Student Batch Directory</h1>
-        </header>
+<body class="text-zinc-900 selection:bg-zinc-900 selection:text-white min-h-screen flex flex-col">
 
-        <div class="max-w-2xl mx-auto mb-10 px-4">
-             <div class="relative">
-                <input type="text" id="search-input" placeholder="Search by name..." class="w-full pl-5 pr-12 py-3 text-lg text-slate-700 bg-white border border-slate-300 rounded-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-200">
-                <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
-            </div>
-        </div>
-
-        <main id="directory-container" class="max-w-4xl mx-auto space-y-4"></main>
-
-        <footer class="text-center mt-12 text-slate-500">
-            <p>&copy; 2025 Student Directory. All Rights Reserved.</p>
-        </footer>
+    <!-- Pale Pearlescent Ambient Backdrop -->
+    <div class="ambient-canvas" aria-hidden="true">
+        <div class="ambient-orb w-[34rem] h-[34rem] -top-28 -left-24 bg-slate-200/70"></div>
+        <div class="ambient-orb w-[30rem] h-[30rem] top-24 -right-24 bg-zinc-200/75"></div>
+        <div class="ambient-orb w-[28rem] h-[28rem] bottom-0 left-1/3 bg-slate-200/50"></div>
     </div>
 
-    <div id="profile-modal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50 hidden">
-        <div class="relative bg-white rounded-lg shadow-xl max-w-sm w-full text-center overflow-hidden">
-            <img id="modal-image" src="" alt="Full-size student photo" class="w-full h-auto max-h-[70vh] object-contain bg-slate-100">
-            <div class="p-6">
-                <h3 id="modal-name" class="text-3xl font-bold text-slate-900"></h3>
-                <p id="modal-place" class="text-lg text-slate-600 mt-2"></p>
+    <!-- Crisp Minimal Header -->
+    <header class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5 sm:pt-12 sm:pb-6">
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <h1 class="text-3xl sm:text-4xl font-semibold tracking-[-0.03em] text-zinc-950 leading-none">
+                Student Batch Directory
+            </h1>
+
+            <!-- Compact Frosted Stats Capsule -->
+            <div id="hero-stats" class="glass-pill inline-flex items-center self-start sm:self-auto gap-4 px-4 py-2 rounded-full text-xs text-zinc-600">
+                <span class="flex items-baseline gap-1.5">
+                    <strong id="stat-total-members" class="text-sm font-semibold text-zinc-950 tabular-nums">0</strong>
+                    <span>Members</span>
+                </span>
+                <span class="w-px h-3.5 bg-zinc-300/80"></span>
+                <span class="flex items-baseline gap-1.5">
+                    <strong id="stat-total-batches" class="text-sm font-semibold text-zinc-950 tabular-nums">0</strong>
+                    <span>Batches</span>
+                </span>
+                <span class="w-px h-3.5 bg-zinc-300/80"></span>
+                <span id="stat-year-range" class="font-medium text-zinc-800 tabular-nums">—</span>
             </div>
-            <button id="close-modal" class="absolute top-2 right-2 bg-black bg-opacity-50 text-white rounded-full p-2 hover:bg-opacity-75 transition focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-white">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-            </button>
+        </div>
+    </header>
+
+    <!-- Floating Sticky Apple-Style Frosted Command Dock -->
+    <div class="sticky top-2.5 sm:top-4 z-30 w-full max-w-6xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div class="glass-dock rounded-2xl sm:rounded-[24px] p-3 sm:p-3.5 space-y-2.5">
+            <!-- Top Row: Search Input & Segmented View Switcher -->
+            <div class="flex items-center gap-2 sm:gap-2.5">
+                <div class="relative flex-1">
+                    <svg class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                    </svg>
+                    <input
+                        type="text"
+                        id="search-input"
+                        placeholder="Search name or city"
+                        autocomplete="off"
+                        class="glass-input w-full pl-10 pr-10 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 rounded-xl focus:outline-none transition-all duration-150"
+                    >
+                    <!-- Clear search button -->
+                    <button
+                        type="button"
+                        id="clear-search"
+                        aria-label="Clear search"
+                        class="hidden absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-zinc-400 hover:text-zinc-800 hover:bg-zinc-900/5 transition-colors focus:outline-none"
+                    >
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Segmented View Switcher: Grid vs List -->
+                <div class="inline-flex items-center p-1 bg-zinc-900/[0.045] border border-white/60 rounded-xl shrink-0" role="group" aria-label="Layout view">
+                    <button
+                        type="button"
+                        id="view-grid-btn"
+                        aria-label="Grid view"
+                        class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[9px] text-xs font-medium transition-all duration-150 bg-white/90 text-zinc-900 shadow-xs"
+                    >
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                        </svg>
+                        <span class="hidden sm:inline">Grid</span>
+                    </button>
+                    <button
+                        type="button"
+                        id="view-list-btn"
+                        aria-label="List view"
+                        class="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[9px] text-xs font-medium transition-all duration-150 text-zinc-500 hover:text-zinc-900"
+                    >
+                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                        </svg>
+                        <span class="hidden sm:inline">List</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Bottom Row: Batch Filter Pills & Result Count -->
+            <div class="flex items-center justify-between gap-4">
+                <div id="batch-tabs" class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" role="tablist" aria-label="Filter by batch">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+                <div id="results-summary" class="hidden md:flex items-center gap-2 text-xs text-zinc-500 shrink-0 pr-1">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Directory Content -->
+    <main id="directory-container" class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-7 sm:py-9 flex-1 space-y-9"></main>
+
+    <!-- Back to Top Floating Glass Button -->
+    <button
+        type="button"
+        id="back-to-top"
+        aria-label="Scroll back to top"
+        class="glass-control fixed bottom-5 right-5 z-20 p-3 rounded-full text-zinc-800 opacity-0 pointer-events-none translate-y-2 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+    >
+        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+        </svg>
+    </button>
+
+    <!-- Minimal Footer -->
+    <footer class="py-8 text-center text-xs text-zinc-400">
+        <p>&copy; 2026 Student Batch Directory</p>
+    </footer>
+
+    <!-- Full-Size Navigable Frosted Glass Profile Lightbox -->
+    <div id="profile-modal" role="dialog" aria-modal="true" aria-labelledby="modal-name" class="fixed inset-0 bg-zinc-900/35 backdrop-blur-xl flex items-center justify-center p-4 sm:p-6 z-50 modal-closed">
+        <div class="modal-panel glass-modal-sheet relative rounded-[26px] max-w-lg w-full overflow-hidden">
+            <!-- Top Floating Bar inside Modal -->
+            <div class="absolute top-3.5 left-3.5 right-3.5 z-10 flex items-center justify-between pointer-events-none">
+                <span id="modal-counter" class="pointer-events-auto glass-control px-3 py-1 rounded-full text-[11px] font-medium text-zinc-800 tabular-nums">
+                    1 / 1
+                </span>
+                <button
+                    type="button"
+                    id="close-modal"
+                    aria-label="Close modal"
+                    class="pointer-events-auto glass-control w-9 h-9 text-zinc-800 rounded-full flex items-center justify-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Image / Monogram Stage -->
+            <div id="modal-media-stage" class="relative bg-zinc-200/40 flex items-center justify-center min-h-[280px] sm:min-h-[340px] max-h-[62vh] select-none">
+                <img
+                    id="modal-image"
+                    src=""
+                    alt="Full-size student photo"
+                    class="w-full h-auto max-h-[62vh] object-contain hidden"
+                >
+                <div id="modal-monogram" class="hidden w-full py-20 flex items-center justify-center bg-gradient-to-br from-white/50 via-zinc-100/50 to-slate-200/50">
+                    <div id="modal-monogram-circle" class="w-28 h-28 rounded-full bg-white/80 backdrop-blur-md border border-white shadow-sm flex items-center justify-center text-3xl font-semibold tracking-tight text-zinc-600"></div>
+                </div>
+
+                <!-- Previous / Next Gallery Controls -->
+                <button
+                    type="button"
+                    id="modal-prev"
+                    aria-label="Previous student"
+                    class="glass-control absolute left-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full text-zinc-800 flex items-center justify-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+                >
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                    </svg>
+                </button>
+                <button
+                    type="button"
+                    id="modal-next"
+                    aria-label="Next student"
+                    class="glass-control absolute right-3.5 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full text-zinc-800 flex items-center justify-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+                >
+                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Profile Details Footer -->
+            <div class="px-6 py-5 bg-white/55 border-t border-white/70 flex items-start justify-between gap-4">
+                <div class="min-w-0">
+                    <h3 id="modal-name" class="text-xl sm:text-2xl font-semibold tracking-[-0.02em] text-zinc-950 truncate"></h3>
+                    <div class="mt-1.5 flex items-center gap-1.5 text-sm text-zinc-500">
+                        <svg class="w-4 h-4 text-zinc-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                        </svg>
+                        <span id="modal-place"></span>
+                    </div>
+                </div>
+                <span id="modal-batch-badge" class="glass-pill shrink-0 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium text-zinc-700"></span>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- THIS IS THE ONLY SECTION I HAVE CHANGED ---
+        // Student dataset organized by batch year
         const students = [
             // --- BATCH 2023 (Special Order) ---
             { name: 'Manas Kataskar', place: 'Asangaon', batch: 2023, photoURL: 'https://i.postimg.cc/x8S2bVBC/IMG-20251110-WA0002.jpg' },
@@ -94,29 +425,29 @@
             { name: 'Amit Choudhary', place: 'Sion', batch: 2023, photoURL: 'https://i.postimg.cc/15v77820/image.png' },
             { name: 'Aditya Salve', place: 'Ambernath', batch: 2023, photoURL: 'https://i.postimg.cc/RCXT4jRR/image.png' },
             { name: 'Migdad Farooqi', place: 'Mumbra', batch: 2023, photoURL: 'https://i.postimg.cc/WpZypY2g/IMG-20251107-WA0003.jpg' },
-            
+
             // --- BATCH 2022 (Piyush 1st, then sorted) ---
             { name: 'Piyush Kumar Singh', place: 'Vasai', batch: 2022, photoURL: 'https://i.postimg.cc/HWRCZPyv/image.png' },
             { name: 'Bhargav Rasal', place: 'Kharghar', batch: 2022, photoURL: 'https://i.postimg.cc/7ZVHWnD5/image.png' },
             { name: 'Aman Layarawala', place: 'Mumbra', batch: 2022, photoURL: 'https://i.postimg.cc/k4kqbjNz/image.png' },
             { name: 'Divyansh Singh', place: 'Seawoods', batch: 2022, photoURL: 'https://i.postimg.cc/0NYQP1pb/image.png' },
 
-            // --- BATCH 2021 (NEW CUSTOM ORDER) ---
-            { name: 'Pulkit Kedavat', place: 'Powai', batch: 2021, photoURL: 'https://i.postimg.cc/05TpCD8N/image.png' },
-            { name: 'Rishabh Singh', place: 'Lalbaug', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RS' },
-            { name: 'Atharva Dhuri', place: 'Bandra', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=AD' },
-            { name: 'Rahul Rajpurohit', place: 'Bhiwandi', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RR' },
-            { name: 'Govardhan Bhadane', place: 'CBD Belapur', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GB' },
-            { name: 'Badri Mallah', place: 'Nalasopara', batch: 2021, photoURL: 'https://i.postimg.cc/R0SFSbX5/image.png' },
-            { name: 'Shubham Nandecha', place: 'Khopoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=SN' },
-            { name: 'Sabir Shaikh', place: 'Mumbra', batch: 2021, photoURL: 'https://i.postimg.cc/6pLLqqxX/image.png' },
-            { name: 'Ravindra Patel', place: 'Nalasopara', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RP' },
-            { name: 'Prateek Khairnar', place: 'Wasim', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=PK' },
-            { name: 'Gaurav Yadav', place: 'Airoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GY' },
-            { name: 'Ishan Bhange', place: 'Panvel', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=IB' },
-            { name: 'Mandar Mohidekar', place: 'Dombivali', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=MM' },
-            { name: 'Namah Gupta', place: 'Ghatkopar', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=NG' },
-            
+            // --- BATCH 2021 (Dr. prefix applied, custom order) ---
+            { name: 'Dr. Pulkit Kedavat', place: 'Powai', batch: 2021, photoURL: 'https://i.postimg.cc/05TpCD8N/image.png' },
+            { name: 'Dr. Rishabh Singh', place: 'Lalbaug', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RS' },
+            { name: 'Dr. Atharva Dhuri', place: 'Bandra', batch: 2021, photoURL: 'https://i.postimg.cc/5NwQ54wT/IMG-20261119-WA0003.jpg' },
+            { name: 'Dr. Rahul Rajpurohit', place: 'Bhiwandi', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RR' },
+            { name: 'Dr. Govardhan Bhadane', place: 'CBD Belapur', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GB' },
+            { name: 'Dr. Badri Mallah', place: 'Nalasopara', batch: 2021, photoURL: 'https://i.postimg.cc/R0SFSbX5/image.png' },
+            { name: 'Dr. Shubham Nandecha', place: 'Khopoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=SN' },
+            { name: 'Dr. Sabir Shaikh', place: 'Mumbra', batch: 2021, photoURL: 'https://i.postimg.cc/6pLLqqxX/image.png' },
+            { name: 'Dr. Ravindra Patel', place: 'Nalasopara', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=RP' },
+            { name: 'Dr. Prateek Khairnar', place: 'Wasim', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=PK' },
+            { name: 'Dr. Gaurav Yadav', place: 'Airoli', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=GY' },
+            { name: 'Dr. Ishan Bhange', place: 'Panvel', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=IB' },
+            { name: 'Dr. Mandar Mohidekar', place: 'Dombivali', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=MM' },
+            { name: 'Dr. Namah Gupta', place: 'Ghatkopar', batch: 2021, photoURL: 'https://placehold.co/300x300/f59e0b/white?text=NG' },
+
             // --- BATCH 2020 (Sorted by Place, then Name) ---
             { name: 'Dr. Akshat Warrier', place: 'Andheri', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AW' },
             { name: 'Dr. Winston Pereira', place: 'Andheri', batch: 2020, photoURL: 'https://i.postimg.cc/pdCmKtyg/image.png' },
@@ -133,119 +464,662 @@
             { name: 'Dr. Rahul Kendapadi', place: 'Sion', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=RK' },
             { name: 'Dr. Aryan Chawiwala', place: 'Vasai', batch: 2020, photoURL: 'https://placehold.co/300x300/10b981/white?text=AC' },
         ];
-        // --- END OF CHANGED SECTION ---
 
         document.addEventListener('DOMContentLoaded', () => {
+            // Core DOM references
             const directoryContainer = document.getElementById('directory-container');
             const searchInput = document.getElementById('search-input');
+            const clearSearchBtn = document.getElementById('clear-search');
+            const batchTabsContainer = document.getElementById('batch-tabs');
+            const resultsSummary = document.getElementById('results-summary');
+            const viewGridBtn = document.getElementById('view-grid-btn');
+            const viewListBtn = document.getElementById('view-list-btn');
+            const backToTopBtn = document.getElementById('back-to-top');
+
+            // Hero stat elements
+            const statTotalMembers = document.getElementById('stat-total-members');
+            const statTotalBatches = document.getElementById('stat-total-batches');
+            const statYearRange = document.getElementById('stat-year-range');
+
+            // Lightbox modal references
             const profileModal = document.getElementById('profile-modal');
+            const modalMediaStage = document.getElementById('modal-media-stage');
             const modalImage = document.getElementById('modal-image');
+            const modalMonogram = document.getElementById('modal-monogram');
+            const modalMonogramCircle = document.getElementById('modal-monogram-circle');
             const modalName = document.getElementById('modal-name');
             const modalPlace = document.getElementById('modal-place');
-            const closeModal = document.getElementById('close-modal');
+            const modalBatchBadge = document.getElementById('modal-batch-badge');
+            const modalCounter = document.getElementById('modal-counter');
+            const modalPrevBtn = document.getElementById('modal-prev');
+            const modalNextBtn = document.getElementById('modal-next');
+            const closeModalBtn = document.getElementById('close-modal');
 
-            const renderDirectory = (searchTerm = '') => {
-                directoryContainer.innerHTML = '';
-                const normalizedSearchTerm = searchTerm.trim().toLowerCase();
-                const filteredStudents = students.filter(student =>
-                    student.name.toLowerCase().includes(normalizedSearchTerm)
-                );
+            // Application UI state
+            const state = {
+                searchTerm: '',
+                selectedBatch: 'all', // 'all' or batch number as string
+                viewMode: 'grid',     // 'grid' | 'list'
+                collapsedBatches: new Set(),
+                visibleStudents: [],  // Ordered flat list for modal prev/next navigation
+                activeModalIndex: -1
+            };
 
-                if (filteredStudents.length === 0) {
-                    directoryContainer.innerHTML = `<p class="text-center text-slate-500 text-lg">No students found.</p>`;
-                    return;
+            // Derive sorted unique batches (newest first)
+            const allBatches = [...new Set(students.map(s => s.batch))].sort((a, b) => b - a);
+
+            /**
+             * Populates the header summary metrics.
+             */
+            const initHeroStats = () => {
+                statTotalMembers.textContent = students.length;
+                statTotalBatches.textContent = allBatches.length;
+                if (allBatches.length > 0) {
+                    const minYear = allBatches[allBatches.length - 1];
+                    const maxYear = allBatches[0];
+                    statYearRange.textContent = minYear === maxYear ? `${maxYear}` : `${minYear}–${String(maxYear).slice(-2)}`;
                 }
+            };
 
-                const studentsByBatch = filteredStudents.reduce((acc, student) => {
-                    if (!acc[student.batch]) {
-                        acc[student.batch] = [];
-                    }
-                    acc[student.batch].push(student);
+            /**
+             * Safely escapes HTML characters.
+             * @param {string} value
+             * @returns {string}
+             */
+            const escapeHtml = (value) => String(value)
+                .replace(/&/g, '&amp;')
+                .replace(/"/g, '&quot;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+
+            /**
+             * Escapes regex special characters for highlighting search matches.
+             * @param {string} str
+             * @returns {string}
+             */
+            const escapeRegex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+            /**
+             * Highlights matching search substrings cleanly in neutral ink.
+             * @param {string} text
+             * @param {string} query
+             * @returns {string}
+             */
+            const highlightMatch = (text, query) => {
+                const safeText = escapeHtml(text);
+                if (!query) return safeText;
+                const regex = new RegExp(`(${escapeRegex(escapeHtml(query))})`, 'gi');
+                return safeText.replace(regex, '<mark class="bg-zinc-900/10 text-zinc-950 rounded px-0.5 font-semibold">$1</mark>');
+            };
+
+            /**
+             * Checks if a student's photo URL is a placeholder URL.
+             * @param {string} url
+             * @returns {boolean}
+             */
+            const isPlaceholderPhoto = (url) => !url || url.includes('placehold.co');
+
+            /**
+             * Extracts clean initials (ignoring "Dr." prefix) for crisp monochrome monograms.
+             * @param {string} name
+             * @returns {string}
+             */
+            const getInitials = (name) => {
+                const cleaned = name.replace(/^Dr\.?\s+/i, '').trim();
+                const parts = cleaned.split(/\s+/).filter(Boolean);
+                if (parts.length === 0) return '?';
+                if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+                return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+            };
+
+            /**
+             * Computes filtered students based on active search term and batch filter.
+             * @returns {Array<object>}
+             */
+            const getFilteredStudents = () => {
+                const query = state.searchTerm.trim().toLowerCase();
+                return students.filter(student => {
+                    const matchesBatch = state.selectedBatch === 'all' || String(student.batch) === state.selectedBatch;
+                    if (!matchesBatch) return false;
+                    if (!query) return true;
+                    return (
+                        student.name.toLowerCase().includes(query) ||
+                        student.place.toLowerCase().includes(query) ||
+                        String(student.batch).includes(query)
+                    );
+                });
+            };
+
+            /**
+             * Renders the batch filter pill tabs with live counts matching the current search.
+             */
+            const renderBatchTabs = () => {
+                const query = state.searchTerm.trim().toLowerCase();
+                const searchMatches = students.filter(student => {
+                    if (!query) return true;
+                    return (
+                        student.name.toLowerCase().includes(query) ||
+                        student.place.toLowerCase().includes(query) ||
+                        String(student.batch).includes(query)
+                    );
+                });
+
+                const countByBatch = searchMatches.reduce((acc, s) => {
+                    acc[s.batch] = (acc[s.batch] || 0) + 1;
                     return acc;
                 }, {});
 
-                const sortedBatches = Object.keys(studentsByBatch).sort((a, b) => b - a);
-                
-                let htmlToRender = '';
-                sortedBatches.forEach(batch => {
-                    const studentsInBatch = studentsByBatch[batch];
-                    const studentCardsHTML = studentsInBatch.map(student => `
-                        <div class="profile-card bg-white rounded-lg shadow-md overflow-hidden text-center transform hover:-translate-y-1 transition-transform duration-300" 
-                            data-name="${student.name}" 
-                            data-place="${student.place}" 
-                            data-photo="${student.photoURL}">
-                            <div class="w-full h-40 bg-slate-100 flex items-center justify-center pointer-events-none">
-                                <img src="${student.photoURL}" alt="Photo of ${student.name}" class="max-w-full max-h-full object-contain" onerror="this.onerror=null;this.src='https://placehold.co/300x300/EFEFEF/333333?text=Image+Not+Found';">
-                            </div>
-                            <div class="p-4 pointer-events-none">
-                                <h3 class="font-semibold text-slate-800">${student.name}</h3>
-                                <p class="text-sm text-slate-500 mt-1">${student.place}</p>
+                const tabs = [
+                    { id: 'all', label: 'All', count: searchMatches.length },
+                    ...allBatches.map(year => ({
+                        id: String(year),
+                        label: `${year}`,
+                        count: countByBatch[year] || 0
+                    }))
+                ];
+
+                batchTabsContainer.innerHTML = tabs.map(tab => {
+                    const isActive = state.selectedBatch === tab.id;
+                    const activeClasses = isActive
+                        ? 'glass-pill-active text-white'
+                        : 'glass-pill text-zinc-600 hover:text-zinc-950';
+                    const badgeClasses = isActive
+                        ? 'bg-white/15 text-zinc-100'
+                        : 'bg-zinc-900/[0.06] text-zinc-500';
+
+                    return `
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected="${isActive}"
+                            data-batch-tab="${tab.id}"
+                            class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs sm:text-[13px] font-medium whitespace-nowrap transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${activeClasses}"
+                        >
+                            <span>${tab.label}</span>
+                            <span class="px-1.5 py-0.5 rounded-full text-[11px] font-medium leading-none tabular-nums ${badgeClasses}">${tab.count}</span>
+                        </button>
+                    `;
+                }).join('');
+            };
+
+            /**
+             * Updates the right-side result counter and reset link in the sticky bar.
+             * @param {number} count
+             */
+            const renderResultsSummary = (count) => {
+                const isFiltered = state.searchTerm.trim().length > 0 || state.selectedBatch !== 'all';
+                const label = count === 1 ? '1 result' : `${count} results`;
+                resultsSummary.innerHTML = `
+                    <span class="tabular-nums font-medium text-zinc-600">${label}</span>
+                    ${isFiltered ? `<span class="text-zinc-300">&middot;</span><button type="button" id="inline-reset-btn" class="font-medium text-zinc-800 hover:text-zinc-950 underline underline-offset-2 transition-colors">Reset</button>` : ''}
+                `;
+
+                const inlineReset = document.getElementById('inline-reset-btn');
+                if (inlineReset) {
+                    inlineReset.addEventListener('click', resetFilters);
+                }
+            };
+
+            /**
+             * Builds the media markup (portrait photo or frosted monogram) for Grid cards.
+             * @param {object} student
+             * @returns {string}
+             */
+            const buildGridMedia = (student) => {
+                const initials = escapeHtml(getInitials(student.name));
+                if (isPlaceholderPhoto(student.photoURL)) {
+                    return `
+                        <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-white/70 via-zinc-100/65 to-slate-200/55 transition-transform duration-300 ease-out group-hover:scale-[1.03]">
+                            <div class="w-16 h-16 sm:w-[74px] sm:h-[74px] rounded-full bg-white/85 border border-white shadow-xs flex items-center justify-center text-lg sm:text-xl font-semibold tracking-tight text-zinc-600">
+                                ${initials}
                             </div>
                         </div>
-                    `).join('');
+                    `;
+                }
 
-                    const isActive = normalizedSearchTerm.length > 0;
+                return `
+                    <img
+                        src="${escapeHtml(student.photoURL)}"
+                        alt="Photo of ${escapeHtml(student.name)}"
+                        loading="lazy"
+                        class="w-full h-full object-cover object-top transition-transform duration-300 ease-out group-hover:scale-[1.04]"
+                        onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                    >
+                    <div class="hidden w-full h-full flex items-center justify-center bg-gradient-to-br from-white/70 via-zinc-100/65 to-slate-200/55">
+                        <div class="w-16 h-16 sm:w-[74px] sm:h-[74px] rounded-full bg-white/85 border border-white shadow-xs flex items-center justify-center text-lg sm:text-xl font-semibold tracking-tight text-zinc-600">
+                            ${initials}
+                        </div>
+                    </div>
+                `;
+            };
 
-                    htmlToRender += `
-                        <div class="batch-accordion rounded-lg overflow-hidden shadow-sm border border-slate-200 bg-white">
-                            <button class="accordion-button w-full flex justify-between items-center p-4 text-left hover:bg-slate-50 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 ${isActive ? 'active' : ''}">
-                                <h2 class="text-xl font-semibold text-slate-900">Batch of ${batch}</h2>
-                                <svg class="accordion-icon w-6 h-6 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </button>
-                            <div class="accordion-content bg-slate-50 ${isActive ? 'expanded' : ''}">
-                                <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                    ${studentCardsHTML}
-                                </div>
+            /**
+             * Builds the avatar thumbnail markup for List view rows.
+             * @param {object} student
+             * @returns {string}
+             */
+            const buildListAvatar = (student) => {
+                const initials = escapeHtml(getInitials(student.name));
+                if (isPlaceholderPhoto(student.photoURL)) {
+                    return `
+                        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/75 border border-white shadow-2xs flex items-center justify-center text-sm font-semibold text-zinc-600 shrink-0">
+                            ${initials}
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/75 border border-white shadow-2xs overflow-hidden shrink-0">
+                        <img
+                            src="${escapeHtml(student.photoURL)}"
+                            alt="Photo of ${escapeHtml(student.name)}"
+                            loading="lazy"
+                            class="w-full h-full object-cover object-top"
+                            onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+                        >
+                        <div class="hidden w-full h-full flex items-center justify-center text-sm font-semibold text-zinc-600">
+                            ${initials}
+                        </div>
+                    </div>
+                `;
+            };
+
+            /**
+             * Renders the full student directory according to active filters and layout mode.
+             */
+            const renderDirectory = () => {
+                try {
+                    const query = state.searchTerm.trim();
+                    const filtered = getFilteredStudents();
+
+                    renderBatchTabs();
+                    renderResultsSummary(filtered.length);
+
+                    if (filtered.length === 0) {
+                        state.visibleStudents = [];
+                        directoryContainer.innerHTML = `
+                            <div class="animate-fade-up glass-list-shell max-w-sm mx-auto my-10 py-12 px-6 text-center rounded-[24px]">
+                                <h3 class="text-base font-semibold text-zinc-900">No results</h3>
+                                <button
+                                    type="button"
+                                    id="empty-reset-btn"
+                                    class="glass-pill-active mt-4 inline-flex items-center px-4 py-2 rounded-full text-xs font-medium text-white transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400"
+                                >
+                                    Reset
+                                </button>
                             </div>
-                        </div>`;
-                });
-                
-                directoryContainer.innerHTML = htmlToRender;
-                attachAccordionListeners();
-            };
+                        `;
+                        const emptyReset = document.getElementById('empty-reset-btn');
+                        if (emptyReset) emptyReset.addEventListener('click', resetFilters);
+                        return;
+                    }
 
-            const attachAccordionListeners = () => {
-                directoryContainer.querySelectorAll('.accordion-button').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const accordionContent = button.nextElementSibling;
-                        button.classList.toggle('active');
-                        accordionContent.classList.toggle('expanded');
+                    // Group filtered results by batch (descending)
+                    const grouped = filtered.reduce((acc, student) => {
+                        if (!acc[student.batch]) acc[student.batch] = [];
+                        acc[student.batch].push(student);
+                        return acc;
+                    }, {});
+
+                    const sortedBatchKeys = Object.keys(grouped).sort((a, b) => Number(b) - Number(a));
+
+                    // Build flat ordered list for seamless lightbox next/prev navigation
+                    const flatVisible = [];
+                    sortedBatchKeys.forEach(batchKey => {
+                        grouped[batchKey].forEach(student => flatVisible.push(student));
                     });
-                });
-            };
-            
-            searchInput.addEventListener('input', (event) => renderDirectory(event.target.value));
+                    state.visibleStudents = flatVisible;
 
-            // --- Modal Logic ---
-            const showModal = (name, place, photoURL) => {
-                modalName.textContent = name;
-                modalPlace.textContent = place;
-                modalImage.src = photoURL;
-                profileModal.classList.remove('hidden');
+                    let globalIndex = 0;
+                    let html = '';
+
+                    sortedBatchKeys.forEach(batchKey => {
+                        const batchStudents = grouped[batchKey];
+                        const isCollapsed = state.selectedBatch === 'all' && !query && state.collapsedBatches.has(batchKey);
+
+                        let itemsMarkup = '';
+
+                        if (state.viewMode === 'grid') {
+                            const cards = batchStudents.map(student => {
+                                const idx = globalIndex++;
+                                const nameHtml = highlightMatch(student.name, query);
+                                const placeHtml = highlightMatch(student.place, query);
+
+                                return `
+                                    <button
+                                        type="button"
+                                        data-student-index="${idx}"
+                                        class="profile-trigger glass-card group relative flex flex-col rounded-[22px] p-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500"
+                                    >
+                                        <div class="relative aspect-square w-full rounded-[15px] bg-zinc-200/45 overflow-hidden pointer-events-none">
+                                            ${buildGridMedia(student)}
+                                        </div>
+                                        <div class="px-2 pt-3 pb-1.5 flex-1 flex flex-col justify-between pointer-events-none">
+                                            <h3 class="text-sm sm:text-[15px] font-semibold tracking-[-0.01em] text-zinc-900 leading-snug group-hover:text-zinc-950">
+                                                ${nameHtml}
+                                            </h3>
+                                            <p class="mt-1 flex items-center gap-1 text-xs text-zinc-500">
+                                                <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                                </svg>
+                                                <span class="truncate">${placeHtml}</span>
+                                            </p>
+                                        </div>
+                                    </button>
+                                `;
+                            }).join('');
+
+                            itemsMarkup = `
+                                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 pt-4">
+                                    ${cards}
+                                </div>
+                            `;
+                        } else {
+                            const rows = batchStudents.map(student => {
+                                const idx = globalIndex++;
+                                const nameHtml = highlightMatch(student.name, query);
+                                const placeHtml = highlightMatch(student.place, query);
+
+                                return `
+                                    <button
+                                        type="button"
+                                        data-student-index="${idx}"
+                                        class="profile-trigger group w-full flex items-center justify-between gap-4 px-4 py-3 sm:px-5 sm:py-3.5 text-left hover:bg-white/65 transition-colors duration-150 focus:outline-none focus-visible:bg-white/70"
+                                    >
+                                        <div class="flex items-center gap-3.5 sm:gap-4 min-w-0 pointer-events-none">
+                                            ${buildListAvatar(student)}
+                                            <div class="min-w-0">
+                                                <h3 class="text-sm sm:text-[15px] font-semibold tracking-[-0.01em] text-zinc-900 truncate group-hover:text-zinc-950">
+                                                    ${nameHtml}
+                                                </h3>
+                                                <p class="mt-0.5 flex items-center gap-1 text-xs sm:text-[13px] text-zinc-500 truncate">
+                                                    <svg class="w-3.5 h-3.5 text-zinc-400 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                                                    </svg>
+                                                    <span>${placeHtml}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3 shrink-0 pointer-events-none">
+                                            <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-zinc-900/[0.045] text-zinc-600 tabular-nums">
+                                                ${student.batch}
+                                            </span>
+                                            <svg class="w-4 h-4 text-zinc-400 group-hover:text-zinc-800 transition-all duration-150 group-hover:translate-x-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                                            </svg>
+                                        </div>
+                                    </button>
+                                `;
+                            }).join('');
+
+                            itemsMarkup = `
+                                <div class="glass-list-shell mt-4 rounded-[22px] divide-y divide-zinc-900/[0.05] overflow-hidden">
+                                    ${rows}
+                                </div>
+                            `;
+                        }
+
+                        // Crisp batch header with minimal collapse chevron
+                        const canCollapse = state.selectedBatch === 'all' && !query;
+                        html += `
+                            <section class="animate-fade-up" data-batch-section="${batchKey}">
+                                <div class="flex items-center justify-between gap-4 pb-2.5 border-b border-zinc-900/[0.07]">
+                                    <div class="flex items-center gap-2.5">
+                                        <h2 class="text-lg sm:text-xl font-semibold tracking-[-0.02em] text-zinc-950">
+                                            Batch ${batchKey}
+                                        </h2>
+                                        <span class="glass-pill inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-zinc-600 tabular-nums">
+                                            ${batchStudents.length}
+                                        </span>
+                                    </div>
+                                    ${canCollapse ? `
+                                        <button
+                                            type="button"
+                                            data-collapse-batch="${batchKey}"
+                                            aria-label="Toggle Batch ${batchKey}"
+                                            aria-expanded="${!isCollapsed}"
+                                            class="glass-pill w-8 h-8 rounded-full flex items-center justify-center text-zinc-500 hover:text-zinc-900 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 ${isCollapsed ? 'is-collapsed-btn' : ''}"
+                                        >
+                                            <svg class="collapse-chevron w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                            </svg>
+                                        </button>
+                                    ` : ''}
+                                </div>
+
+                                <div class="section-collapse ${isCollapsed ? 'is-collapsed' : ''}">
+                                    <div class="section-collapse-inner">
+                                        ${itemsMarkup}
+                                    </div>
+                                </div>
+                            </section>
+                        `;
+                    });
+
+                    directoryContainer.innerHTML = html;
+                } catch (error) {
+                    console.error('Error rendering directory:', error);
+                    directoryContainer.innerHTML = `
+                        <div class="py-12 text-center text-sm text-zinc-500">
+                            Unable to render directory.
+                        </div>
+                    `;
+                }
             };
 
-            const hideModal = () => {
-                profileModal.classList.add('hidden');
+            /**
+             * Resets search input and batch tab selection back to defaults.
+             */
+            const resetFilters = () => {
+                state.searchTerm = '';
+                state.selectedBatch = 'all';
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
+                renderDirectory();
             };
 
-            // Event delegation for opening the modal
+            /**
+             * Switches between Grid and List layout views.
+             * @param {'grid'|'list'} mode
+             */
+            const setViewMode = (mode) => {
+                if (state.viewMode === mode) return;
+                state.viewMode = mode;
+
+                const isGrid = mode === 'grid';
+                viewGridBtn.className = `inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[9px] text-xs font-medium transition-all duration-150 ${
+                    isGrid ? 'bg-white/90 text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+                }`;
+                viewListBtn.className = `inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-[9px] text-xs font-medium transition-all duration-150 ${
+                    !isGrid ? 'bg-white/90 text-zinc-900 shadow-xs' : 'text-zinc-500 hover:text-zinc-900'
+                }`;
+
+                renderDirectory();
+            };
+
+            // --- Lightbox Modal Logic ---
+
+            /**
+             * Updates modal content to show the student at a given index in `state.visibleStudents`.
+             * @param {number} index
+             */
+            const renderModalStudent = (index) => {
+                const total = state.visibleStudents.length;
+                if (total === 0) return;
+
+                // Wrap around cleanly for effortless gallery browsing
+                const safeIndex = ((index % total) + total) % total;
+                state.activeModalIndex = safeIndex;
+                const student = state.visibleStudents[safeIndex];
+
+                modalName.textContent = student.name;
+                modalPlace.textContent = student.place;
+                modalBatchBadge.textContent = `Batch of ${student.batch}`;
+                modalCounter.textContent = `${safeIndex + 1} / ${total}`;
+
+                const showNav = total > 1;
+                modalPrevBtn.classList.toggle('hidden', !showNav);
+                modalNextBtn.classList.toggle('hidden', !showNav);
+
+                const initials = getInitials(student.name);
+                modalMonogramCircle.textContent = initials;
+
+                if (isPlaceholderPhoto(student.photoURL)) {
+                    modalImage.classList.add('hidden');
+                    modalImage.src = '';
+                    modalMonogram.classList.remove('hidden');
+                } else {
+                    modalMonogram.classList.add('hidden');
+                    modalImage.classList.remove('hidden');
+                    modalImage.alt = `Photo of ${student.name}`;
+                    modalImage.onerror = () => {
+                        modalImage.classList.add('hidden');
+                        modalMonogram.classList.remove('hidden');
+                    };
+                    modalImage.src = student.photoURL;
+                }
+            };
+
+            /**
+             * Opens the profile lightbox modal at the specified visible index.
+             * @param {number} index
+             */
+            const openModal = (index) => {
+                renderModalStudent(index);
+                profileModal.classList.remove('modal-closed');
+                document.body.style.overflow = 'hidden';
+            };
+
+            /**
+             * Closes the profile lightbox modal.
+             */
+            const closeModal = () => {
+                profileModal.classList.add('modal-closed');
+                document.body.style.overflow = '';
+            };
+
+            // --- Event Listeners ---
+
+            // Search input handling
+            searchInput.addEventListener('input', (event) => {
+                state.searchTerm = event.target.value;
+                const hasText = state.searchTerm.length > 0;
+                clearSearchBtn.classList.toggle('hidden', !hasText);
+                renderDirectory();
+            });
+
+            clearSearchBtn.addEventListener('click', () => {
+                state.searchTerm = '';
+                searchInput.value = '';
+                clearSearchBtn.classList.add('hidden');
+                renderDirectory();
+                searchInput.focus();
+            });
+
+            // View switcher buttons
+            viewGridBtn.addEventListener('click', () => setViewMode('grid'));
+            viewListBtn.addEventListener('click', () => setViewMode('list'));
+
+            // Batch filter tabs via event delegation
+            batchTabsContainer.addEventListener('click', (event) => {
+                const tabBtn = event.target.closest('[data-batch-tab]');
+                if (!tabBtn) return;
+                state.selectedBatch = tabBtn.dataset.batchTab;
+                renderDirectory();
+            });
+
+            // Profile clicks and section collapse toggles via event delegation
             directoryContainer.addEventListener('click', (event) => {
-                const card = event.target.closest('.profile-card');
+                const collapseBtn = event.target.closest('[data-collapse-batch]');
+                if (collapseBtn) {
+                    const batchKey = collapseBtn.dataset.collapseBatch;
+                    if (state.collapsedBatches.has(batchKey)) {
+                        state.collapsedBatches.delete(batchKey);
+                    } else {
+                        state.collapsedBatches.add(batchKey);
+                    }
+                    renderDirectory();
+                    return;
+                }
+
+                const card = event.target.closest('.profile-trigger');
                 if (card) {
-                    const { name, place, photo } = card.dataset;
-                    showModal(name, place, photo);
+                    const idx = Number(card.dataset.studentIndex);
+                    if (!Number.isNaN(idx)) {
+                        openModal(idx);
+                    }
                 }
             });
 
-            // Listeners for closing the modal
-            closeModal.addEventListener('click', hideModal);
+            // Modal controls
+            closeModalBtn.addEventListener('click', closeModal);
+            modalPrevBtn.addEventListener('click', () => renderModalStudent(state.activeModalIndex - 1));
+            modalNextBtn.addEventListener('click', () => renderModalStudent(state.activeModalIndex + 1));
+
             profileModal.addEventListener('click', (event) => {
                 if (event.target === profileModal) {
-                    hideModal();
+                    closeModal();
                 }
             });
 
-            // Initial render
+            // Touch swipe navigation inside the lightbox modal for mobile devices
+            let touchStartX = 0;
+            modalMediaStage.addEventListener('touchstart', (event) => {
+                touchStartX = event.changedTouches[0].screenX;
+            }, { passive: true });
+
+            modalMediaStage.addEventListener('touchend', (event) => {
+                const deltaX = event.changedTouches[0].screenX - touchStartX;
+                if (Math.abs(deltaX) > 45 && state.visibleStudents.length > 1) {
+                    if (deltaX < 0) {
+                        renderModalStudent(state.activeModalIndex + 1);
+                    } else {
+                        renderModalStudent(state.activeModalIndex - 1);
+                    }
+                }
+            }, { passive: true });
+
+            // Global keyboard shortcuts: '/' focuses search, Escape closes modal/blurs, Arrow keys navigate modal
+            document.addEventListener('keydown', (event) => {
+                const isModalOpen = !profileModal.classList.contains('modal-closed');
+
+                if (isModalOpen) {
+                    if (event.key === 'Escape') {
+                        closeModal();
+                    } else if (event.key === 'ArrowLeft') {
+                        event.preventDefault();
+                        renderModalStudent(state.activeModalIndex - 1);
+                    } else if (event.key === 'ArrowRight') {
+                        event.preventDefault();
+                        renderModalStudent(state.activeModalIndex + 1);
+                    }
+                    return;
+                }
+
+                if (event.key === '/' && document.activeElement !== searchInput) {
+                    event.preventDefault();
+                    searchInput.focus();
+                } else if (event.key === 'Escape' && document.activeElement === searchInput) {
+                    searchInput.blur();
+                }
+            });
+
+            // Back-to-top button visibility and action
+            window.addEventListener('scroll', () => {
+                const show = window.scrollY > 360;
+                backToTopBtn.classList.toggle('opacity-0', !show);
+                backToTopBtn.classList.toggle('pointer-events-none', !show);
+                backToTopBtn.classList.toggle('translate-y-2', !show);
+            }, { passive: true });
+
+            backToTopBtn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+
+            // Initialize app
+            initHeroStats();
             renderDirectory();
         });
     </script>
